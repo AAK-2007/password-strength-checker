@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Real-time password strength checker to help you create secure passwords">
+    <meta name="keywords" content="password strength, security, password checker">
+    <meta name="theme-color" content="#667eea">
+    <title>Password Strength Checker | Create Secure Passwords</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔐</text></svg>">
+
+    <!-- Apply saved theme before first paint (avoids a flash of the wrong theme) -->
+    <script>
+        (function () {
+            var theme = 'dark';
+            try {
+                theme = localStorage.getItem('theme') ||
+                    (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+            } catch (e) { }
+            document.documentElement.setAttribute('data-theme', theme);
+        })();
+    </script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div class="background-gradient"></div>
+
+    <button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark/light mode">
+        <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+        </svg>
+        <svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+        </svg>
+    </button>
+
+    <main class="container">
+        <div class="card">
+            <header class="header">
+                <h1>Password Strength Checker</h1>
+                <p class="subtitle">Create a strong, secure password — checked privately in your browser</p>
+            </header>
+
+            <section class="password-section">
+                <div class="input-wrapper">
+                    <div class="label-row">
+                        <label for="password-input" class="input-label">Enter Your Password</label>
+                        <button type="button" id="generate-btn" class="text-btn">Generate Strong Password</button>
+                    </div>
+                    <div class="password-input-container">
+                        <input type="password" id="password-input" class="password-input"
+                            placeholder="Type your password..." autocomplete="off"
+                            autocapitalize="off" autocorrect="off" spellcheck="false"
+                            aria-describedby="strength-indicator">
+                        <div class="input-actions">
+                            <button type="button" id="copy-btn" class="action-btn"
+                                aria-label="Copy password to clipboard" title="Copy to Clipboard">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                                </svg>
+                            </button>
+                            <button type="button" id="toggle-visibility" class="action-btn"
+                                aria-label="Show password" aria-pressed="false" title="Show password">
+                                <svg class="eye-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <path class="eye-open" d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                    <circle class="eye-open" cx="12" cy="12" r="3"></circle>
+                                    <path class="eye-closed"
+                                        d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24">
+                                    </path>
+                                    <line class="eye-closed" x1="1" y1="1" x2="23" y2="23"></line>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="strength-indicator" id="strength-indicator" role="status" aria-live="polite">
+                    <div class="strength-bar-container">
+                        <div class="strength-bar" id="strength-bar"></div>
+                    </div>
+                    <div class="strength-info">
+                        <span class="strength-label" id="strength-label">Enter a password</span>
+                        <span class="crack-time" id="crack-time"></span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="requirements-section">
+                <h2 class="section-title">Password Requirements</h2>
+                <ul class="requirements-list" id="requirements-list">
+                    <li class="requirement-item" id="req-length">
+                        <span class="checkmark">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                        </span>
+                        <span class="requirement-text">At least 8 characters</span>
+                    </li>
+                    <li class="requirement-item" id="req-uppercase">
+                        <span class="checkmark">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                        </span>
+                        <span class="requirement-text">Contains uppercase letter (A-Z)</span>
+                    </li>
+                    <li class="requirement-item" id="req-lowercase">
+                        <span class="checkmark">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                        </span>
+                        <span class="requirement-text">Contains lowercase letter (a-z)</span>
+                    </li>
+                    <li class="requirement-item" id="req-number">
+                        <span class="checkmark">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                        </span>
+                        <span class="requirement-text">Contains number (0-9)</span>
+                    </li>
+                    <li class="requirement-item" id="req-special">
+                        <span class="checkmark">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                        </span>
+                        <span class="requirement-text">Contains special character (e.g. ! @ # $)</span>
+                    </li>
+                </ul>
+            </section>
+
+            <section class="tips-section">
+                <h2 class="section-title">Security Tips</h2>
+                <div class="tips-content" id="tips-content">
+                    <ul class="tips-list">
+                        <li>Use a mix of uppercase, lowercase, numbers, and symbols</li>
+                        <li>Avoid common words and personal information</li>
+                        <li>Make it at least 12 characters long for better security</li>
+                        <li>Consider using a password manager</li>
+                        <li>Never reuse passwords across different accounts</li>
+                    </ul>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+    <!-- JavaScript -->
+    <noscript><p class="noscript">This tool needs JavaScript to analyse passwords.</p></noscript>
+    <script src="script.js" defer></script>
+</body>
+
+</html>
